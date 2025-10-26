@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>KJC Owner Panel</title>
+  <link rel="stylesheet" href="owner.css" />
+  <!-- web3 -->
+  <script src="https://cdn.jsdelivr.net/npm/web3@1.10.4/dist/web3.min.js"></script>
+  <!-- ใช้ config.js เดิมของคุณ (มี window.NETWORK, window.ADDR, window.SALE_ABI, window.ERC20_MINI_ABI, window.DECIMALS) -->
+  <script src="config.js"></script>
+</head>
+<body>
+  <div class="wrap">
+    <h1>🛠️ KJC Owner Panel</h1>
+
+    <div class="topbar">
+      <button id="btnConnect">เชื่อมต่อกระเป๋า</button>
+      <span id="wallet" class="mono">❌ ยังไม่เชื่อมต่อ</span>
+      <div class="muted">
+        Contract: <span id="ca" class="mono">—</span>
+      </div>
+      <div class="muted">
+        สถานะระบบ: <b id="sysState">—</b>
+      </div>
+      <div class="muted">
+        เจ้าของสัญญา: <span id="ownerAddr" class="mono">—</span>
+      </div>
+    </div>
+
+    <!-- READ-ONLY PARAMS -->
+    <section class="card">
+      <h2>📊 ค่าพารามิเตอร์ปัจจุบัน</h2>
+      <div class="grid2">
+        <div>APR (bps): <b id="aprBps">—</b></div>
+        <div>Stake Claim Interval (sec): <b id="claimStakeInt">—</b></div>
+        <div>Lock Duration (sec): <b id="lockDur">—</b></div>
+        <div>Ref 1 (bps): <b id="ref1">—</b></div>
+        <div>Ref 2 (bps): <b id="ref2">—</b></div>
+        <div>Ref 3 (bps): <b id="ref3">—</b></div>
+        <div>Ref Claim Interval (sec): <b id="refClaimInt">—</b></div>
+      </div>
+      <small class="muted">* ถ้าต้องการให้เคลม USDT ได้ทันที ให้ตั้ง Ref Claim Interval = <b>0</b></small>
+    </section>
+
+    <!-- SET PARAMS -->
+    <section class="card">
+      <h2>⚙️ ปรับค่าพารามิเตอร์ (setParams)</h2>
+      <div class="grid2">
+        <label>APR (bps)
+          <input id="in_aprBps" placeholder="เช่น 5000 = 50%" />
+        </label>
+        <label>Stake Claim Interval (sec)
+          <input id="in_claimStakeInt" placeholder="เช่น 604800 = 7 วัน" />
+        </label>
+        <label>Lock Duration (sec)
+          <input id="in_lockDur" placeholder="เช่น 15552000 = 180 วัน" />
+        </label>
+        <label>Ref 1 (bps)
+          <input id="in_ref1" placeholder="เช่น 1000 = 10%" />
+        </label>
+        <label>Ref 2 (bps)
+          <input id="in_ref2" placeholder="เช่น 600 = 6%" />
+        </label>
+        <label>Ref 3 (bps)
+          <input id="in_ref3" placeholder="เช่น 400 = 4%" />
+        </label>
+        <label>Ref Claim Interval (sec)
+          <input id="in_refClaimInt" placeholder="0 = เคลมได้ทันที" />
+        </label>
+      </div>
+      <button id="btnSetParams">บันทึกการเปลี่ยนแปลง</button>
+    </section>
+
+    <!-- WITHDRAW -->
+    <section class="card">
+      <h2>🏧 ถอนเหรียญ (Owner)</h2>
+      <div class="grid2">
+        <label>ถอนจำนวน (ทศนิยม 18)
+          <input id="withdrawAmt" placeholder="เช่น 100.5" />
+        </label>
+        <label>โอนไปยัง Address
+          <input id="withdrawTo" placeholder="0x..." />
+        </label>
+      </div>
+      <div class="row">
+        <button id="btnWdKJC">ถอน KJC</button>
+        <button id="btnWdUSDT">ถอน USDT</button>
+      </div>
+      <small class="muted">* USDT/KJC ในสัญญาต้องพอ — ไม่งั้นจะ revert</small>
+    </section>
+
+    <!-- AIRDROP STAKE -->
+    <section class="card">
+      <h2>✈️ Airdrop Stake (สร้างสเตกย้อนหลังได้)</h2>
+      <div class="grid2">
+        <label>รายชื่อกระเป๋า (ทีละบรรทัด)
+          <textarea id="airUsers" rows="6" placeholder="0xabc...\n0xdef...\n0x123..."></textarea>
+        </label>
+        <label>จำนวน KJC (ทีละบรรทัด)
+          <textarea id="airAmounts" rows="6" placeholder="1000\n2500.5\n300"></textarea>
+        </label>
+      </div>
+      <label>Unix Start Time (วินาที, เวลาย้อนหลังก็ได้ — เว้นว่าง = เวลาปัจจุบัน)
+        <input id="airStart" placeholder="เช่น 1731000000 หรือ เว้นว่าง" />
+      </label>
+      <button id="btnAirdrop">ส่ง Airdrop Stake</button>
+      <small class="muted">
+        รูปแบบตัวอย่าง:<br>
+        - Users: 1 บรรทัดต่อ 1 address<br>
+        - Amounts: 1 บรรทัดต่อ 1 จำนวน (ทศนิยมได้) ตำแหน่งต้องตรงกับ Users<br>
+        - StartTime: ว่าง = ตอนนี้, หรือใส่เลข Unix วินาที (ย้อนหลัง/อนาคตก็ได้)
+      </small>
+    </section>
+
+    <!-- PAUSE -->
+    <section class="card">
+      <h2>⏸️ Pause / ▶️ Unpause ระบบ</h2>
+      <div class="row">
+        <button id="btnPause">Pause</button>
+        <button id="btnUnpause">Unpause</button>
+      </div>
+    </section>
+
+    <!-- TOAST -->
+    <div id="toast" class="toast" style="display:none"></div>
+  </div>
+
+  <script src="owner.js"></script>
+</body>
+</html>
